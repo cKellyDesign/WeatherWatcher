@@ -1,4 +1,4 @@
-Time	RHum	Wind Direction	Wind Speed	Gust	Rain	Radiation	mBar
+Time	RHum	Temp	Wind Direction	Wind Speed	Gust	Rain	Radiation	mBar
 02:18:03	66	40	224	7	8	0.00	0.00	1014.4
 02:17:03	66	40	207	8	10	0.00	0.00	1014.4
 02:16:03	66	40	204	6	7	0.00	0.00	1014.4
