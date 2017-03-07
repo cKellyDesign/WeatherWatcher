@@ -17,7 +17,7 @@ var Station = function () {
 	}
 
 	self.timelineState = {
-		hrs	: self.queryState.hrs ? Number(self.queryState.hrs) : 24,
+		hrs	: self.queryState.hrs ? Number(self.queryState.hrs) : 72,
 		min	: function () { return self.timelineState.hrs   * 60; },
 		sec	: function () { return self.timelineState.min() * 60; },
 		mil	: function () { return self.timelineState.sec() * 1000; },
