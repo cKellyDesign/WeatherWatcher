@@ -76,7 +76,17 @@ var Station = function () {
 				.attr("transform", "translate(0," + height + ")")
 				.call(d3.axisBottom(x))
 				.select(".domain")
-				.remove();;
+				.remove();
+
+			g.append("line")
+				.attr("x1", "0").attr("y1", "0")
+				.attr("x2", width).attr("y2", "0")
+				.attr("transform", "translate(0," + y(1013.25) + ")")
+				.attr("stroke", 'grey')
+				.attr("stroke-width", "1")
+				.attr("stroke-dasharray", "5, 5");
+				// .attr("height", "2")
+				// .attr("width", width);
 
 			// Left Axis
 			g.append("g")
