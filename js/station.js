@@ -41,21 +41,21 @@ var Station = function () {
 		height = +svg.attr("height") - margin.top - margin.bottom,
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	var parseTime = d3.timeParse('%H:%M:%S');
+	var parseTime = d3.timeParse('%Y:%m:%d:%H:%M:%S');
 
 	var x = d3.scaleTime()
 		.rangeRound([0, width]);
 
 	var y = d3.scaleLinear()
 		// .rangeRound([height, 0]);
-		.domain([980, 1030]).range([height, 0]);
+		.domain([990, 1020]).range([height, 0]);
 
 	var line = d3.line()
 		.x(function(d) { return x(d.Time); })
 		.y(function(d) { return y(d.mBar); });
 
 
-		d3.tsv("data/20170306.tsv", function (d) {
+		d3.tsv("data.tsv", function (d) {
 			d.Time = parseTime(d.Time);
 			d.mBar = +d.mBar;
 			return d;
@@ -63,7 +63,9 @@ var Station = function () {
 		}, function (error, data) {
 			if (error) throw error;
 
-
+			data = data.sort(function (a, b) {
+				return a.Time - b.Time;
+			});
 
 			x.domain(d3.extent(data, function(d) { return d.Time; }));
 			// y.domain(d3.extent(data, function(d) { return d.mBar; }));
