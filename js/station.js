@@ -79,6 +79,8 @@ var Station = function () {
 		.y(function(d) { return y(d.mBar); });
 
 
+	self.makeGraph = function () {
+
 		d3.tsv("data.tsv", function (d) {
 
 				var datumTime 	= (new Date(parseTime(d.Time))).getTime();
@@ -93,6 +95,7 @@ var Station = function () {
 
 		}, function (error, data) {
 			if (error) throw error;
+			$('svg > g').empty();
 
 			data = data.sort(function (a, b) { return a.Time - b.Time; });
 
@@ -135,10 +138,11 @@ var Station = function () {
 				.attr("stroke-linecap", "round")
 				.attr("stroke-width", 1.5)
 				.attr("d", line);
-	});
+		});
+	} // end of makeGraph()
 
-
-}
+	self.makeGraph();
+} // end of Station
 
 
 
