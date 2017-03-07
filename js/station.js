@@ -64,6 +64,7 @@ var Station = function () {
 		width = +svg.attr("width") - margin.left - margin.right,
 		height = +svg.attr("height") - margin.top - margin.bottom,
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
 
 	var parseTime = d3.timeParse('%Y:%m:%d:%H:%M:%S');
 
@@ -72,12 +73,40 @@ var Station = function () {
 
 	var y = d3.scaleLinear()
 		// .rangeRound([height, 0]);
-		.domain([990, 1020]).range([height, 0]);
+		.domain([990, 1020]) // mBar
+		// .domain([30, 50]) // Temp
+		.range([height, 0]);
 
 	var line = d3.line()
-		.x(function(d) { return x(d.Time); })
-		.y(function(d) { return y(d.mBar); });
+		.y(function(d) { return y(d.mBar); }) // mBar
+		// .y(function(d) { return y(d.Temp); }) // Temp
+		.x(function(d) { return x(d.Time); });
 
+	self.d3State = {
+		svg		: 	svg,
+		width	: 	width,
+		height 	: 	height,
+		x 		: 	x,
+		y 		: 	y,
+		line: 	line,
+
+		setyDomain : function () {
+
+			self.d3State.y.domain([890, 1120]);
+			console.log(self.d3State.svg.selectAll("g .y.axis").call(d3.axisLeft(self.d3State.y)));
+				// .call(d3.axisLeft(self.d3State.y));
+			// debugger;
+			// self.yAxis = g.append("g")
+			// 	.call(d3.axisLeft(y))
+			// 	.append("text")
+			// 	.attr("fill", '#000')
+			// 	.attr("transform", "rotate(-90)")
+			// 	.attr("y", 6)
+			// 	.attr("dy", "0.71em")
+			// 	.attr("text-anchor", "end")
+			// 	.text("Pressure\n(mBar)");
+		}
+	};
 
 	self.makeGraph = function () {
 
@@ -89,7 +118,8 @@ var Station = function () {
 				if ( datumTime > timeLimit ) {
 					return {
 						Time : parseTime(d.Time),
-						mBar : +d.mBar
+						mBar : +d.mBar,
+						Temp : +d.Temp
 					};
 				}
 
@@ -102,11 +132,9 @@ var Station = function () {
 			x.domain(d3.extent(data, function(d) { return d.Time; }));
 
 			// Bottom Axis
-			g.append("g")
-				.attr("transform", "translate(0," + height + ")")
-				.call(d3.axisBottom(x))
-				.select(".domain")
-				.remove();
+			self.xAxis = g.append("g")
+				.attr("transform", "translate(0," + (height - margin.bottom) + ")")
+				.call(d3.axisBottom(x));
 
 			g.append("line")
 				.attr("x1", "0").attr("y1", "0")
@@ -119,7 +147,7 @@ var Station = function () {
 				// .attr("width", width);
 
 			// Left Axis
-			g.append("g")
+			self.yAxis = g.append("g")
 				.call(d3.axisLeft(y))
 				.append("text")
 				.attr("fill", '#000')
@@ -127,7 +155,8 @@ var Station = function () {
 				.attr("y", 6)
 				.attr("dy", "0.71em")
 				.attr("text-anchor", "end")
-				.text("Pressure\n(mBar)");
+				.text("Pressure (mBar)"); // mBar
+				// .text("Temp (F)"); // Temp
 
 			// Actual Line
 			g.append("path")
