@@ -1,10 +1,11 @@
 var Station = function () {
-	var self = this,
-		winW = $(window).innerWidth(),
-		winH = $(window).innerWidth() * .75;
-		self.weatherData = [];
-
+	var self = this;
 	self.el = document.getElementById('station');
+	var	winW = $(self.el).innerWidth();
+	var	winH = $(self.el).innerWidth() * .75;
+	self.weatherData = [];
+
+	;
 	$(self.el).append('<svg height="' + winH + '" width="' + winW + '"></svg>');
 	// console.log($el.inner)
 	// $.get("./data/responseData.tsv", function (data) {
