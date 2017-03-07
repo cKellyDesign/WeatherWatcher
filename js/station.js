@@ -2,10 +2,34 @@ var Station = function () {
 	var self = this;
 	self.el = document.getElementById('station');
 	var	winW = $(self.el).innerWidth();
-	var	winH = $(self.el).innerWidth() * .75;
+	var	winH = ( $(self.el).innerWidth() * .75 > $(window).innerHeight() ) ? $(window).innerHeight() : $(self.el).innerWidth() * .75;
 	self.weatherData = [];
 
-	;
+	// Parse URL for query states
+	self.queryState = {};
+	if (location.search) {
+		var query = location.search.substr(1);
+		var queryArr = query.split('&');
+		for (var q = 0; q < queryArr.length; q++) {
+			var items = (queryArr[q]).split('=');
+			if (items.length > 1) self.queryState[items[0]] = items[1];
+		}
+	}
+
+	self.timelineState = {
+		hrs	: self.queryState.hrs ? Number(self.queryState.hrs) : 24,
+		min	: function () { return self.timelineState.hrs   * 60; },
+		sec	: function () { return self.timelineState.min() * 60; },
+		mil	: function () { return self.timelineState.sec() * 1000; },
+		timeLimit : function () { 
+
+			var nowDate = (new Date()).getTime();
+
+			return nowDate - self.timelineState.mil(); 
+		}
+	};
+
+	
 	$(self.el).append('<svg height="' + winH + '" width="' + winW + '"></svg>');
 	// console.log($el.inner)
 	// $.get("./data/responseData.tsv", function (data) {
@@ -56,20 +80,23 @@ var Station = function () {
 
 
 		d3.tsv("data.tsv", function (d) {
-			d.Time = parseTime(d.Time);
-			d.mBar = +d.mBar;
-			return d;
+
+				var datumTime 	= (new Date(parseTime(d.Time))).getTime();
+				var timeLimit	= self.timelineState.timeLimit();
+
+				if ( datumTime > timeLimit ) {
+					return {
+						Time : parseTime(d.Time),
+						mBar : +d.mBar
+					};
+				}
 
 		}, function (error, data) {
 			if (error) throw error;
 
-			data = data.sort(function (a, b) {
-				return a.Time - b.Time;
-			});
+			data = data.sort(function (a, b) { return a.Time - b.Time; });
 
 			x.domain(d3.extent(data, function(d) { return d.Time; }));
-			// y.domain(d3.extent(data, function(d) { return d.mBar; }));
-			// y.domain("850", "1030");
 
 			// Bottom Axis
 			g.append("g")
