@@ -37,7 +37,15 @@ function update(data) {
 	data = data.sort(function (a, b) { return a.Time - b.Time; });
 	// x.domain(window.appState.timeline.getTimeDomain());
 	x.domain(d3.extent(data, function(d) { return d.Time; }));
+	// y.domain(d3.extent(data, function(d) { return d.mBar; }));
 
+	if (xAxis !== undefined) {
+		xAxis.remove();
+		yAxis.remove();
+		mBarLine.remove();
+		baroLine.remove();
+	}
+	
 
 	// Bottom Axis
 	xAxis = g.append("g")
@@ -79,6 +87,7 @@ function update(data) {
 
 function responseHandler (d) {
 	var	viewModel = [];
+	if (typeof d === "string") d = d3.tsvParse(d); 
 	for (var i = 0; i < d.length; i++) {
 
 		viewModel.push({
@@ -92,7 +101,7 @@ function responseHandler (d) {
 }
 
 // d3.tsv("/data.tsv", parseData, update);
-d3.json("/data/20170307.json", responseHandler);
+$.get("/data/20170307.json", responseHandler);
 // $.get("data/20170307.tsv", responseHandler);
 
 
