@@ -20,20 +20,22 @@ var y = d3.scaleLinear()
 	.range([height, 0]);
 
 var line = d3.line()
-	.y(function(d) { return y(d.mBar); }) // mBar
+	.y(function(d) { 
+
+		return y(d.mBar); 
+	}) // mBar
 	// .y(function(d) { return y(d.Temp); }) // Temp
-	.x(function(d) { return x(d.Time); });
+	.x(function(d) { 
+
+		return x(d.Time); 
+	});
 
 var xAxis, yAxis, baroLine, mBarLine;
 
-
 function update(data) {
-	console.log(data);
-
-	// sort data by time
+	// sort data by time & set x Domain
 	data = data.sort(function (a, b) { return a.Time - b.Time; });
-
-	// set x domain via extents
+	// x.domain(window.appState.timeline.getTimeDomain());
 	x.domain(d3.extent(data, function(d) { return d.Time; }));
 
 
@@ -54,29 +56,44 @@ function update(data) {
 		.text("Pressure (mBar)"); // mBar
 		// .text("Temp (F)"); // Temp
 
-	// Actual Line
-	mBarLine = g.append("path")
-		.datum(data)
-		.attr("fill", "none")
-		.attr("stroke", "steelblue")
-		.attr("stroke-linejoin", "round")
-		.attr("stroke-linecap", "round")
-		.attr("stroke-width", 1.5)
-		.attr("d", line);
+		var i = 0;
+	// Actual line
+	mBarLine = g.append("path").attr("class", "mBar")
+	.datum(data)
+	.attr("fill", "none")
+	.attr("stroke", "steelblue")
+	.attr("stroke-width", 1.5)
+	.attr("stroke-linecap", "round")
+	.attr("stroke-linejoin", "round")
+	.attr("d", line);
 
 	// Avg mBar line
 	baroLine = g.append("line")
-		.attr("x1", "0").attr("y1", "0")
-		.attr("x2", width).attr("y2", "0")
-		.attr("transform", "translate(0," + y(1013.25) + ")")
-		.attr("stroke", 'grey')
-		.attr("stroke-width", "1")
-		.attr("stroke-dasharray", "5, 5");
+	.attr("x1", "0").attr("y1", "0")
+	.attr("x2", width).attr("y2", "0")
+	.attr("transform", "translate(0," + y(1013.25) + ")")
+	.attr("stroke", 'grey')
+	.attr("stroke-width", "1")
+	.attr("stroke-dasharray", "5, 5");
 }
 
-$.get("data/20170307.tsv", update);
+function responseHandler (d) {
+	var	viewModel = [];
+	for (var i = 0; i < d.length; i++) {
 
+		viewModel.push({
+			Time : parseTime(d[i].Time),
+			mBar : +d[i].mBar,
+			Temp : +d[i].Temp
+		});
+	}
 
+	update(viewModel);
+}
+
+// d3.tsv("/data.tsv", parseData, update);
+d3.json("/data/20170307.json", responseHandler);
+// $.get("data/20170307.tsv", responseHandler);
 
 
 var Station = function () {
@@ -101,80 +118,17 @@ var Station = function () {
 		min	: function () { return self.appState.timeline.hrs   * 60; },
 		sec	: function () { return self.appState.timeline.min() * 60; },
 		mil	: function () { return self.appState.timeline.sec() * 1000; },
-		timeLimit : function () { 
+		getTimeDomain : function () { 
 
-			var nowDate = (new Date()).getTime();
+			var nowTime = (new Date()).getTime();
 
-			return nowDate - self.appState.timeline.mil(); 
+			return [(nowTime - self.appState.timeline.mil()), nowTime]; 
 		}
 	};
 	
 	window.appState = self.appState;
-
-	
-	
-	// console.log($el.inner)
-	// $.get("./data/responseData.tsv", function (data) {
-		
-	// 	var headerKey = ["Time", "RHum", "Temp", "Wind Direction", "Wind Speed", "Gust", "Rain", "Radiation", "mBar"];
-	// 	var dataEl = data.slice(data.indexOf("<PRE>"));
-	// 	var dataStr = $(dataEl).text();
-	// 	var dataStrIndex = dataStr.split('\n', 4).join('\n').length;
-	// 	dataStr = dataStr.slice(dataStrIndex);
-		// self.weatherData = [];
-	// 	var tabbedData = tabulateUWdata(dataStr);
-	// 	tabbedData = "Time	RHum	Temp	Wind Direction	Wind Speed	Gust	Rain	Radiation	mBar" + tabbedData;
-	// 	// var splitData = tabbedData.split('\n');
-
-
-	// 	// for (var r = 2; r < splitData.length; r++) {
-	// 	// 	var splitRow = splitData[r].split('\t');
-	// 	// 	var newDatum = {};
-	// 	// 	for (var c = 0; c < splitRow.length; c++) {
-	// 	// 		newDatum[headerKey[c]] = (headerKey[c] !== "Time") ? Number(splitRow[c]) : splitRow[c];
-	// 	// 	}
-	// 	// 	self.weatherData.push(newDatum);
-	// 	// }
-		
-	// 	// console.log(self.weatherData[101]);
-	// 	// window.weatherData = headerStrs + '\n' + tabbedData;
-	// 	// makeGraph(d3.tsvParse(tabbedData));
-	// });
 	
 } // end of Station
-
-	
-
-
-
-
-
-
-
-	// function updateGraph () {
-
-	// 	d3.tsv("data.tsv", function (d) {
-
-	// 			var datumTime 	= (new Date(parseTime(d.Time))).getTime();
-	// 			var timeLimit	= self.timelineState.timeLimit();
-
-	// 			if ( datumTime > timeLimit ) {
-	// 				return {
-	// 					Time : parseTime(d.Time),
-	// 					mBar : +d.mBar,
-	// 					Temp : +d.Temp
-	// 				};
-	// 			}
-
-	// 	}, function (error, data) {
-	// 		if (error) throw error;
-	// 		$('svg > g').empty();
-
-			
-	// 	});
-	// } // end of makeGraph()
-
-	// self.makeGraph();
 
 
 
