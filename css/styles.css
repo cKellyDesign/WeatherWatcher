@@ -1,3 +1,67 @@
 body {
 	background-color: white;
 }
+
+body > h1 {
+	position: absolute;
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+}
+
+#controls {
+	display: block;
+}
+
+#controls ul {
+	list-style: none;
+	position: relative;
+	display: block;
+
+}
+
+#controls ul li {
+	position: absolute;
+	text-align: center;
+	top: 0;
+	height: 50px;
+}
+#controls ul li:nth-of-type(1){
+	left: 0; right: 75%;
+}
+#controls ul li:nth-of-type(2) {
+	left: 25%; right: 50%;
+}
+#controls ul li:nth-of-type(3) {
+	left: 50%; right: 25%;
+}
+#controls ul li:nth-of-type(4) {
+	left: 75%; right: 0%;
+}
+
+#controls ul li a {
+	display: block;
+	font-size: 30px;
+	text-decoration: none;
+	line-height: 50px;
+	color: grey;
+	margin: 5px;
+}
+
+#controls ul li a.active {
+	color: white;
+}
+
+#tempBtn.active {
+	background-color: darkorange;
+}
+#rhumBtn.active {
+	background-color: steelblue;
+}
+#mBarBtn.active {
+	background-color: lightcoral;
+}
+#windBtn.active {
+	background-color: lightblue;
+}

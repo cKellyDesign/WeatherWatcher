@@ -1,4 +1,4 @@
-
+	
 var	winW = $('#station').innerWidth();
 var	winH = ( $('#station').innerWidth() * .75 > $(window).innerHeight() ) ? $(window).innerHeight() : $('#station').innerWidth() * .75;
 $('#station').append('<svg height="' + winH + '" width="' + winW + '"></svg>');
@@ -101,7 +101,7 @@ function responseHandler (d) {
 }
 
 // d3.tsv("/data.tsv", parseData, update);
-// $.get("/data/20170307.json", responseHandler);
+$.get("/data.tsv", responseHandler);
 
 // $.get("data/20170307.tsv", responseHandler);
 
@@ -121,6 +121,11 @@ function responseHandler (d) {
 		 
 // 	}
 // })
+
+// function updateGraphFullStop (key) {
+
+// }
+
   
 if (location.search) {
 
@@ -137,20 +142,20 @@ if (location.search) {
 var Station = function () {
 	var self = this;
 	self.el = document.getElementById('station');
-	// self.appState = {
-	// 	query : (function initQueryState() {  
-	// 		if (!location.search) return null;
+	self.appState = {
+		query : (function initQueryState() {  
+			if (!location.search) return null;
 
-	// 		var newQueryState = {}; // to push to and return
-	// 		var query = location.search.substr(1); // remove "?"
-	// 		var queryArr = query.split('&'); // split parameters
-	// 		for (var q = 0; q < queryArr.length; q++) {
-	// 			var items = (queryArr[q]).split('='); // split key value pair
-	// 			if (items.length > 1) newQueryState[items[0]] = items[1];
-	// 		}
-	// 		return newQueryState;
-	// 	})
-	// };
+			var newQueryState = {}; // to push to and return
+			var query = location.search.substr(1); // remove "?"
+			var queryArr = query.split('&'); // split parameters
+			for (var q = 0; q < queryArr.length; q++) {
+				var items = (queryArr[q]).split('='); // split key value pair
+				if (items.length > 1) newQueryState[items[0]] = items[1];
+			}
+			return newQueryState;
+		})
+	};
 	self.appState = {};
 	self.appState.timeline = {
 		hrs	: window.query && window.query.hrs ? Number(window.query.hrs) : 72,
@@ -167,10 +172,20 @@ var Station = function () {
 	
 	window.appState = self.appState;
 	// debugger;
-	var url = "/data.json?hrs=" + self.appState.timeline.hrs; 
-	console.log(url);
-	$.get(url, responseHandler);
+	// var url = "/data.json?hrs=" + self.appState.timeline.hrs; 
+	// console.log(url);
+	// $.get(url, responseHandler);
 
+	self.onLineControlTap = function (e) {
+		e.preventDefault();
+		$(e.target).toggleClass('active');
+	}
+
+	self.onTimeControlTap = function (e) {
+		e.preventDefault();
+	}
+
+	$('#controls ul li a').on('click', self.onLineControlTap);
 	
 } // end of Station
 

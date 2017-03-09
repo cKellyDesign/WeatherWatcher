@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Weather Watcher</title>
 
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700" rel="stylesheet">
+  <script type="text/javascript" src="js/8266393845.js"></script>
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="css/normalize.css">
@@ -15,10 +17,19 @@
 </head>
 <body>
 
-<main class="container">
-  <!-- <h1>Weather Watcher</h1> -->
-  <div id="station"></div>
-</main>
+<nav id="nav"></nav>
+<h1>WeatherWatcher</h1>
+
+<main id="station"></main>
+
+<aside id="controls">
+  <ul>
+    <li><a href="" id="tempBtn" class="fa fa-sun-o"></a></li>
+    <li><a href="" id="rhumBtn" class="fa fa-tint"></a></li>
+    <li><a href="" id="mBarBtn" class="fa fa-jsfiddle"></a></li>
+    <li><a href="" id="windBtn" class="fa fa-flag"></a></li>
+  </ul>
+</aside>
 
 <!-- Dependencies -->
 <script
@@ -30,3 +41,23 @@
 
 </body>
 </html>
+<!-- 
+
+fa-ellipsis-v     - Nav button
+
+
+fa-cloud-download - preasure down
+fa-cloud-upload   - preasure up
+fa-bolt           - Lightning
+fa-jsfiddle        - mBar?
+fa-tint           - Humidity / Percip
+fa-flag           - Wind
+fa-sun-o          - Temp
+
+fa-adjust         - temp?
+fa-fire
+fa-asterisk
+
+fa-compass
+
+ -->
