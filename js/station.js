@@ -89,41 +89,71 @@ function responseHandler (d) {
 	var	viewModel = [];
 	if (typeof d === "string") d = d3.tsvParse(d); 
 	for (var i = 0; i < d.length; i++) {
-
-		viewModel.push({
-			Time : parseTime(d[i].Time),
-			mBar : +d[i].mBar,
-			Temp : +d[i].Temp
-		});
+		if (d[i].mBar)
+			viewModel.push({
+				Time : parseTime(d[i].Time),
+				mBar : +d[i].mBar,
+				Temp : +d[i].Temp
+			});
 	}
 
 	update(viewModel);
 }
 
 // d3.tsv("/data.tsv", parseData, update);
-$.get("/data/20170307.json", responseHandler);
+// $.get("/data/20170307.json", responseHandler);
+
 // $.get("data/20170307.tsv", responseHandler);
 
+// $.ajax({
+// 	// url: 'https://www.ncdc.noaa.gov/cdo-web/api/v2/datasets',
+// 	// url: 'https://www.ncdc.noaa.gov/cdo-web/api/v2/datatypes',
+// 	// url: 'https://www.ncdc.noaa.gov/cdo-web/api/v2/datatypes?datacategoryid=TEMP',
+// 	url: 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND',
+
+// 	headers: { token : 'TRTvjDhJZzqgZfiObVEInrGOztJdyVBh' },
+// 	complete : function(data) { 
+// 		// var results = (JSON.parse(data.responseText)).results[4];
+// 		console.log(data.responseJSON);
+// 		// for (var i = 0; i < results.length; i++) {
+// 		// 	console.log(i + ") " + results[i].name);
+// 		// }
+		 
+// 	}
+// })
+  
+if (location.search) {
+
+	var newQueryState = {}; // to push to and return
+	var query = location.search.substr(1); // remove "?"
+	var queryArr = query.split('&'); // split parameters
+	for (var q = 0; q < queryArr.length; q++) {
+		var items = (queryArr[q]).split('='); // split key value pair
+		if (items.length > 1) newQueryState[items[0]] = items[1];
+	}
+	window.query = newQueryState;
+}
 
 var Station = function () {
 	var self = this;
 	self.el = document.getElementById('station');
-	self.appState = {
-		query : (function initQueryState() {  
-			if (!location.search) return null;
+	// self.appState = {
+	// 	query : (function initQueryState() {  
+	// 		if (!location.search) return null;
 
-			var newQueryState = {}; // to push to and return
-			var query = location.search.substr(1); // remove "?"
-			var queryArr = query.split('&'); // split parameters
-			for (var q = 0; q < queryArr.length; q++) {
-				var items = (queryArr[q]).split('='); // split key value pair
-				if (items.length > 1) newQueryState[items[0]] = items[1];
-			}
-			return newQueryState;
-		})
-	};
+	// 		var newQueryState = {}; // to push to and return
+	// 		var query = location.search.substr(1); // remove "?"
+	// 		var queryArr = query.split('&'); // split parameters
+	// 		for (var q = 0; q < queryArr.length; q++) {
+	// 			var items = (queryArr[q]).split('='); // split key value pair
+	// 			if (items.length > 1) newQueryState[items[0]] = items[1];
+	// 		}
+	// 		return newQueryState;
+	// 	})
+	// };
+	self.appState = {};
 	self.appState.timeline = {
-		hrs	: self.appState.query.hrs ? Number(self.appState.query.hrs) : 72,
+		hrs	: window.query && window.query.hrs ? Number(window.query.hrs) : 72,
 		min	: function () { return self.appState.timeline.hrs   * 60; },
 		sec	: function () { return self.appState.timeline.min() * 60; },
 		mil	: function () { return self.appState.timeline.sec() * 1000; },
@@ -136,6 +166,11 @@ var Station = function () {
 	};
 	
 	window.appState = self.appState;
+	// debugger;
+	var url = "/data.json?hrs=" + self.appState.timeline.hrs; 
+	console.log(url);
+	$.get(url, responseHandler);
+
 	
 } // end of Station
 
