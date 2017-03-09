@@ -24,7 +24,9 @@ window.graphLineState = {
 		"focus"  : false,
 		"label" : "Wind Speed (mph)",
 		"domain": [0, 40]
-	}
+	},
+
+	"showBaroLineText" : true
 }
 
 
@@ -52,7 +54,7 @@ $('#station').append('<svg height="' + winH + '" width="' + winW + '"></svg>');
 
 
 var svg = d3.select("svg"),
-		margin = {top: 20, right: 0, bottom: 10, left: 40},
+		margin = {top: 20, right: 8, bottom: 10, left: 40},
 		width = +svg.attr("width") - margin.left - margin.right,
 		height = +svg.attr("height") - margin.top - margin.bottom,
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -76,6 +78,25 @@ var wLine = d3.line().y(function(d) { return WindY(d.Wind); }).x(function(d) { r
 	// .y(function(d) { return y(d.Temp); }) // Temp
 
 var xAxis, yAxis, baroLine, mBarLine, TempLine, rHumLine, WindLine;
+
+
+
+
+
+
+
+
+
+
+
+function handleLineClick () {
+	var id = ($(this).attr('class')).replace('Line', '');
+	window.graphLineState[window.graphLineState.focus].focus = false;
+	window.graphLineState.focus = id;
+	window.graphLineState[id].focus = true;
+	update();
+}
+
 
 function update(data) {
 	if (!window.data) window.data = data;
@@ -130,16 +151,38 @@ function update(data) {
 		.attr("stroke-width", (window.graphLineState.mBar.focus ? 3 : 1.5))
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
-		.attr("d", mLine);
+		.attr("d", mLine)
+		.on("click", handleLineClick)
+		;
 
 		// Avg mBar line
 		baroLine = g.append("line").attr("class", "baroAvg")
 		.attr("x1", "0").attr("y1", "0")
 		.attr("x2", width).attr("y2", "0")
 		.attr("transform", "translate(0," + mBarY(1013.25) + ")")
-		.attr("stroke", 'grey')
+		.attr("stroke", 'lightcoral').attr("opacity", .5)
 		.attr("stroke-width", "1")
 		.attr("stroke-dasharray", "5, 5");
+		// .on("tap", function (e) { 
+		// 	window.graphLineState.showBaroLineText = !window.graphLineState.showBaroLineText; 
+		// });
+
+
+		if (window.graphLineState.showBaroLineText) {
+
+			var baroText = g.append("g").attr("class", "baroAvgTextWrap")
+			.attr("fill", 'white')
+			.attr("transform", "translate(100," + mBarY(1013.25) + ")")
+			
+			.append("text").attr("class", "baroAvgText")
+			.attr("fill", 'lightcoral')
+			.attr("dy", "8px")
+			.attr("text-anchor", "end")
+			.attr("font-size", "8px")
+			.text("(mBar @ sealevel)");
+		}
+			
+
 	}
 
 	// Bottom Axis
@@ -259,8 +302,14 @@ var Station = function () {
 		e.preventDefault();
 	}
 
+	self.handleNavClick = function (e) {
+		e.preventDefault();
+		$('body').toggleClass('nav');
+	}
+
 	$('#controls ul li a').on('click', self.onLineControlTap);
-	
+	$('#burger, #closeNav').on('click', self.handleNavClick);
+	// $('#burger, #closeNav').on('click', self.handleNavClick);
 } // end of Station
 
 
