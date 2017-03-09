@@ -3,19 +3,23 @@ window.graphLineState = {
 
 	"Temp" : {
 		"isActive" : false,
-		"focus"  : false
+		"focus"  : false,
+		"label" : "Temperature (F)"
 	},
 	"rHum" : {
 		"isActive" : false,
-		"focus"  : false
+		"focus"  : false,
+		"label" : "Relative Humidity (%)"
 	},
 	"mBar" : {
 		"isActive" : true,
-		"focus"  : true
+		"focus"  : true,
+		"label" : "Barometric Pressure (mBar)"
 	},
 	"Wind" : {
 		"isActive" : false,
-		"focus"  : false
+		"focus"  : false,
+		"label" : "Wind Speed (mph)"
 	}
 }
 
@@ -27,12 +31,14 @@ function updateGraphLineState (e) {
 
 	
 
-	if (window.graphLineState[id].isActive) {
-		window.graphLineState[id].focus = true;
-	} else if ($('.active').length) {
+	if (!window.graphLineState[id].isActive && $('.active').length) {
+		
+
+		// debugger;
 		id = $('.active').first().attr('id').replace('Btn','');
 	}
 
+	window.graphLineState[id].focus = true;
 	window.graphLineState.focus = id;
 
 	console.log(window.graphLineState);
@@ -57,7 +63,7 @@ var x = d3.scaleTime().rangeRound([0, width]);
 // var mBarY = d3.scaleLinear().domain([990, 1030]).range([height, 0]);
 
 
-var TempY= d3.scaleLinear().range([height, 0]);
+var TempY= d3.scaleLinear().range([height, 0]).domain([0, 100]);
 var rHumY = d3.scaleLinear().range([height, 0]);
 var mBarY = d3.scaleLinear().range([height, 0]).domain([990, 1030]);;
 var WindY = d3.scaleLinear().range([height, 0]);
@@ -81,17 +87,16 @@ function getFocusedYaxis () {
 		break;
 	}
 }
-
-
 	// .domain([30, 50]) // Temp
 	
 
-var line = d3.line()
-	.y(function(d) { return mBarY(d.mBar); }) // mBar
+var tLine = d3.line().y(function(d) { return TempY(d.Temp); }).x(function(d) { return x(d.Time); }); // mBar
+var rLine = d3.line().y(function(d) { return rHumY(d.rHum); }).x(function(d) { return x(d.Time); }); // mBar
+var mLine = d3.line().y(function(d) { return mBarY(d.mBar); }).x(function(d) { return x(d.Time); }); // mBar
+var wLine = d3.line().y(function(d) { return WindY(d.Wind); }).x(function(d) { return x(d.Time); }); // mBar
 	// .y(function(d) { return y(d.Temp); }) // Temp
-	.x(function(d) { return x(d.Time); });
 
-var xAxis, yAxis, baroLine, mBarLine;
+var xAxis, yAxis, baroLine, mBarLine, TempLine, rHumLine, WindLine;
 
 function update(data) {
 	if (!window.data) window.data = data;
@@ -101,8 +106,69 @@ function update(data) {
 	x.domain(d3.extent(data, function(d) { return d.Time; }));
 
 
-	$('svg > g').empty()
+	$('svg > g').empty();
 	
+		// .text("Temp (F)"); // Temp
+
+
+	if (window.graphLineState.Temp.isActive) {
+		TempLine = g.append("path").attr("class", "TempLine")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "darkorange")
+		.attr("stroke-width", (window.graphLineState.Temp.focus ? 3 : 1.5))
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", tLine);
+	}
+
+	if (window.graphLineState.rHum.isActive) {
+		rHumLine = g.append("path").attr("class", "rHumLine")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "steelblue")
+		.attr("stroke-width", (window.graphLineState.rHum.focus ? 3 : 1.5))
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", rLine);
+	}
+
+
+	if (window.graphLineState.Wind.isActive) {
+		WindLine = g.append("path").attr("class", "WindLine")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "lightblue")
+		.attr("stroke-width", (window.graphLineState.Wind.focus ? 3 : 1.5))
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", wLine);
+	}
+
+	if (window.graphLineState.mBar.isActive) {
+
+
+		// Actual line for mBar
+		mBarLine = g.append("path").attr("class", "mBarLine")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "lightcoral")
+		.attr("stroke-width", (window.graphLineState.mBar.focus ? 3 : 1.5))
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", mLine);
+
+		// Avg mBar line
+		baroLine = g.append("line")
+		.attr("x1", "0").attr("y1", "0")
+		.attr("x2", width).attr("y2", "0")
+		.attr("transform", "translate(0," + mBarY(1013.25) + ")")
+		.attr("stroke", 'grey')
+		.attr("stroke-width", "1")
+		.attr("stroke-dasharray", "5, 5");
+	}
+
+
 
 	// Bottom Axis
 	xAxis = g.append("g")
@@ -118,31 +184,7 @@ function update(data) {
 		.attr("y", 6)
 		.attr("dy", "0.71em")
 		.attr("text-anchor", "end")
-		.text("Pressure (mBar)"); // mBar
-		// .text("Temp (F)"); // Temp
-
-	if (window.graphLineState.mBar.isActive) {
-
-
-		// Actual line for mBar
-		mBarLine = g.append("path").attr("class", "mBar")
-		.datum(data)
-		.attr("fill", "none")
-		.attr("stroke", "lightcoral")
-		.attr("stroke-width", (window.graphLineState.mBar.focus ? 3 : 1.5))
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
-		.attr("d", line);
-
-		// Avg mBar line
-		baroLine = g.append("line")
-		.attr("x1", "0").attr("y1", "0")
-		.attr("x2", width).attr("y2", "0")
-		.attr("transform", "translate(0," + mBarY(1013.25) + ")")
-		.attr("stroke", 'grey')
-		.attr("stroke-width", "1")
-		.attr("stroke-dasharray", "5, 5");
-	}
+		.text(window.graphLineState[window.graphLineState.focus].label);
 }
 
 function responseHandler (d) {
