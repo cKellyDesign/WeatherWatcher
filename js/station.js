@@ -4,52 +4,52 @@ window.graphLineState = {
 	"Temp" : {
 		"isActive" : false,
 		"focus"  : false,
-		"label" : "Temperature (F)"
+		"label" : "Temperature (F)",
+		"domain": [0, 100]
 	},
 	"rHum" : {
 		"isActive" : false,
 		"focus"  : false,
-		"label" : "Relative Humidity (%)"
+		"label" : "Relative Humidity (%)",
+		"domain": [0, 100]
 	},
 	"mBar" : {
 		"isActive" : true,
 		"focus"  : true,
-		"label" : "Barometric Pressure (mBar)"
+		"label" : "Barometric Pressure (mBar)",
+		"domain": [990, 1030]
 	},
 	"Wind" : {
 		"isActive" : false,
 		"focus"  : false,
-		"label" : "Wind Speed (mph)"
+		"label" : "Wind Speed (mph)",
+		"domain": [0, 40]
 	}
 }
+
 
 function updateGraphLineState (e) {
 
 	var id = $(e.target).attr('id').replace('Btn','');
 	window.graphLineState[id].isActive = !window.graphLineState[id].isActive;
 	window.graphLineState[window.graphLineState.focus].focus = false;
-
 	
 
 	if (!window.graphLineState[id].isActive && $('.active').length) {
-		
-
-		// debugger;
 		id = $('.active').first().attr('id').replace('Btn','');
 	}
 
 	window.graphLineState[id].focus = true;
 	window.graphLineState.focus = id;
 
-	console.log(window.graphLineState);
 	update();
 }
-
 
 
 var	winW = $('#station').innerWidth();
 var	winH = ( $('#station').innerWidth() * .75 > $(window).innerHeight() ) ? $(window).innerHeight() : $('#station').innerWidth() * .75;
 $('#station').append('<svg height="' + winH + '" width="' + winW + '"></svg>');
+
 
 var svg = d3.select("svg"),
 		margin = {top: 20, right: 0, bottom: 10, left: 40},
@@ -58,36 +58,15 @@ var svg = d3.select("svg"),
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 var parseTime = d3.timeParse('%Y:%m:%d:%H:%M:%S');
 
+
 var x = d3.scaleTime().rangeRound([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
 
-// var mBarY = d3.scaleLinear().domain([990, 1030]).range([height, 0]);
 
-
-var TempY= d3.scaleLinear().range([height, 0]).domain([0, 100]);
+var TempY = d3.scaleLinear().range([height, 0]);
 var rHumY = d3.scaleLinear().range([height, 0]);
-var mBarY = d3.scaleLinear().range([height, 0]).domain([990, 1030]);;
+var mBarY = d3.scaleLinear().range([height, 0]);
 var WindY = d3.scaleLinear().range([height, 0]);
-
-function getFocusedYaxis () {
-	switch (window.graphLineState.focus) {
-		case "Temp":
-			return TempY;
-		break;
-		case "rHum":
-			return rHumY;
-		break;
-		case "mBar": 
-			return mBarY;
-		break;
-		case "Wind":
-			return WindY;
-		break;
-		default:
-			return null;
-		break;
-	}
-}
-	// .domain([30, 50]) // Temp
 	
 
 var tLine = d3.line().y(function(d) { return TempY(d.Temp); }).x(function(d) { return x(d.Time); }); // mBar
@@ -105,11 +84,20 @@ function update(data) {
 	data = data.sort(function (a, b) { return a.Time - b.Time; });
 	x.domain(d3.extent(data, function(d) { return d.Time; }));
 
-
 	$('svg > g').empty();
 	
-		// .text("Temp (F)"); // Temp
+	y.domain(window.graphLineState[window.graphLineState.focus].domain);
 
+	if (window.graphLineState.Wind.isActive) {
+		WindLine = g.append("path").attr("class", "WindLine")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "lightblue")
+		.attr("stroke-width", (window.graphLineState.Wind.focus ? 3 : 1.5))
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", wLine);
+	}
 
 	if (window.graphLineState.Temp.isActive) {
 		TempLine = g.append("path").attr("class", "TempLine")
@@ -133,21 +121,7 @@ function update(data) {
 		.attr("d", rLine);
 	}
 
-
-	if (window.graphLineState.Wind.isActive) {
-		WindLine = g.append("path").attr("class", "WindLine")
-		.datum(data)
-		.attr("fill", "none")
-		.attr("stroke", "lightblue")
-		.attr("stroke-width", (window.graphLineState.Wind.focus ? 3 : 1.5))
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
-		.attr("d", wLine);
-	}
-
 	if (window.graphLineState.mBar.isActive) {
-
-
 		// Actual line for mBar
 		mBarLine = g.append("path").attr("class", "mBarLine")
 		.datum(data)
@@ -159,7 +133,7 @@ function update(data) {
 		.attr("d", mLine);
 
 		// Avg mBar line
-		baroLine = g.append("line")
+		baroLine = g.append("line").attr("class", "baroAvg")
 		.attr("x1", "0").attr("y1", "0")
 		.attr("x2", width).attr("y2", "0")
 		.attr("transform", "translate(0," + mBarY(1013.25) + ")")
@@ -168,8 +142,6 @@ function update(data) {
 		.attr("stroke-dasharray", "5, 5");
 	}
 
-
-
 	// Bottom Axis
 	xAxis = g.append("g")
 		.attr("transform", "translate(0," + (height - margin.bottom) + ")")
@@ -177,7 +149,7 @@ function update(data) {
 
 	// Left Axis
 	yAxis = g.append("g")
-		.call(d3.axisLeft(getFocusedYaxis()))
+		.call(d3.axisLeft(y))
 		.append("text")
 		.attr("fill", '#000')
 		.attr("transform", "rotate(-90)")
@@ -192,7 +164,7 @@ function responseHandler (d) {
 	if (typeof d === "string") d = d3.tsvParse(d); 
 	for (var i = 0; i < d.length; i++) {
 		if (d[i].mBar)
-			// debugger;
+			
 			viewModel.push({
 				Time : parseTime(d[i].Time),
 				mBar : +d[i].mBar,
@@ -201,10 +173,10 @@ function responseHandler (d) {
 				Wind : +d[i]["Wind Speed"]
 			});
 	}
-
-	TempY.domain(d3.extent(viewModel, function(d) { return d.Temp; }));
-	rHumY.domain(d3.extent(viewModel, function(d) { return d.rHum; }));
-	WindY.domain(d3.extent(viewModel, function(d) { return d.Wind; }));
+	mBarY.domain(window.graphLineState.mBar.domain);
+	TempY.domain(window.graphLineState.Temp.domain);
+	rHumY.domain(window.graphLineState.rHum.domain);
+	WindY.domain(window.graphLineState.Wind.domain);
 
 	update(viewModel);
 }
@@ -230,10 +202,6 @@ $.get("/data.tsv", responseHandler);
 		 
 // 	}
 // })
-
-// function updateGraphFullStop (key) {
-
-// }
 
   
 if (location.search) {
@@ -280,10 +248,6 @@ var Station = function () {
 	};
 	
 	window.appState = self.appState;
-	// debugger;
-	// var url = "/data.json?hrs=" + self.appState.timeline.hrs; 
-	// console.log(url);
-	// $.get(url, responseHandler);
 
 	self.onLineControlTap = function (e) {
 		e.preventDefault();
