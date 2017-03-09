@@ -23,7 +23,19 @@ function updateGraphLineState (e) {
 
 	var id = $(e.target).attr('id').replace('Btn','');
 	window.graphLineState[id].isActive = !window.graphLineState[id].isActive;
-	// window.graphLineState[window.graphLineState.focus].focus = false;
+	window.graphLineState[window.graphLineState.focus].focus = false;
+
+	
+
+	if (window.graphLineState[id].isActive) {
+		window.graphLineState[id].focus = true;
+	} else if ($('.active').length) {
+		id = $('.active').first().attr('id').replace('Btn','');
+	}
+
+	window.graphLineState.focus = id;
+
+	console.log(window.graphLineState);
 	update();
 }
 
@@ -40,17 +52,42 @@ var svg = d3.select("svg"),
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 var parseTime = d3.timeParse('%Y:%m:%d:%H:%M:%S');
 
-var x = d3.scaleTime()
-	.rangeRound([0, width]);
+var x = d3.scaleTime().rangeRound([0, width]);
 
-var y = d3.scaleLinear()
-	// .rangeRound([height, 0]);
-	.domain([990, 1020]) // mBar
+// var mBarY = d3.scaleLinear().domain([990, 1030]).range([height, 0]);
+
+
+var TempY= d3.scaleLinear().range([height, 0]);
+var rHumY = d3.scaleLinear().range([height, 0]);
+var mBarY = d3.scaleLinear().range([height, 0]).domain([990, 1030]);;
+var WindY = d3.scaleLinear().range([height, 0]);
+
+function getFocusedYaxis () {
+	switch (window.graphLineState.focus) {
+		case "Temp":
+			return TempY;
+		break;
+		case "rHum":
+			return rHumY;
+		break;
+		case "mBar": 
+			return mBarY;
+		break;
+		case "Wind":
+			return WindY;
+		break;
+		default:
+			return null;
+		break;
+	}
+}
+
+
 	// .domain([30, 50]) // Temp
-	.range([height, 0]);
+	
 
 var line = d3.line()
-	.y(function(d) { return y(d.mBar); }) // mBar
+	.y(function(d) { return mBarY(d.mBar); }) // mBar
 	// .y(function(d) { return y(d.Temp); }) // Temp
 	.x(function(d) { return x(d.Time); });
 
@@ -60,20 +97,11 @@ function update(data) {
 	if (!window.data) window.data = data;
 	if (!data) data = window.data;
 
-
 	data = data.sort(function (a, b) { return a.Time - b.Time; });
-
-
-	// x.domain(window.appState.timeline.getTimeDomain());
 	x.domain(d3.extent(data, function(d) { return d.Time; }));
-	// y.domain(d3.extent(data, function(d) { return d.mBar; }));
 
-	if (xAxis !== undefined) {
-		xAxis.remove();
-		yAxis.remove();
-		mBarLine.remove();
-		baroLine.remove();
-	}
+
+	$('svg > g').empty()
 	
 
 	// Bottom Axis
@@ -83,7 +111,7 @@ function update(data) {
 
 	// Left Axis
 	yAxis = g.append("g")
-		.call(d3.axisLeft(y))
+		.call(d3.axisLeft(getFocusedYaxis()))
 		.append("text")
 		.attr("fill", '#000')
 		.attr("transform", "rotate(-90)")
@@ -94,12 +122,14 @@ function update(data) {
 		// .text("Temp (F)"); // Temp
 
 	if (window.graphLineState.mBar.isActive) {
+
+
 		// Actual line for mBar
 		mBarLine = g.append("path").attr("class", "mBar")
 		.datum(data)
 		.attr("fill", "none")
 		.attr("stroke", "lightcoral")
-		.attr("stroke-width", 1.5)
+		.attr("stroke-width", (window.graphLineState.mBar.focus ? 3 : 1.5))
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
 		.attr("d", line);
@@ -108,7 +138,7 @@ function update(data) {
 		baroLine = g.append("line")
 		.attr("x1", "0").attr("y1", "0")
 		.attr("x2", width).attr("y2", "0")
-		.attr("transform", "translate(0," + y(1013.25) + ")")
+		.attr("transform", "translate(0," + mBarY(1013.25) + ")")
 		.attr("stroke", 'grey')
 		.attr("stroke-width", "1")
 		.attr("stroke-dasharray", "5, 5");
@@ -126,9 +156,13 @@ function responseHandler (d) {
 				mBar : +d[i].mBar,
 				Temp : +d[i].Temp,
 				rHum : +d[i].rHum,
-				"Wind Speed" : +d[i]["Wind Speed"]
+				Wind : +d[i]["Wind Speed"]
 			});
 	}
+
+	TempY.domain(d3.extent(viewModel, function(d) { return d.Temp; }));
+	rHumY.domain(d3.extent(viewModel, function(d) { return d.rHum; }));
+	WindY.domain(d3.extent(viewModel, function(d) { return d.Wind; }));
 
 	update(viewModel);
 }

@@ -59,15 +59,15 @@ body > h1 {
 	color: white;
 }
 
-#tempBtn.active {
+#TempBtn.active {
 	background-color: darkorange;
 }
-#rhumBtn.active {
+#rHumBtn.active {
 	background-color: steelblue;
 }
 #mBarBtn.active {
 	background-color: lightcoral;
 }
-#windBtn.active {
+#WindBtn.active {
 	background-color: lightblue;
 }
