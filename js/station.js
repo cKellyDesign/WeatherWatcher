@@ -1,10 +1,40 @@
-	
+window.graphLineState = {
+	"focus": "mBar",
+
+	"Temp" : {
+		"isActive" : false,
+		"focus"  : false
+	},
+	"rHum" : {
+		"isActive" : false,
+		"focus"  : false
+	},
+	"mBar" : {
+		"isActive" : true,
+		"focus"  : true
+	},
+	"Wind" : {
+		"isActive" : false,
+		"focus"  : false
+	}
+}
+
+function updateGraphLineState (e) {
+
+	var id = $(e.target).attr('id').replace('Btn','');
+	window.graphLineState[id].isActive = !window.graphLineState[id].isActive;
+	// window.graphLineState[window.graphLineState.focus].focus = false;
+	update();
+}
+
+
+
 var	winW = $('#station').innerWidth();
 var	winH = ( $('#station').innerWidth() * .75 > $(window).innerHeight() ) ? $(window).innerHeight() : $('#station').innerWidth() * .75;
 $('#station').append('<svg height="' + winH + '" width="' + winW + '"></svg>');
 
 var svg = d3.select("svg"),
-		margin = {top: 20, right: 20, bottom: 20, left: 40},
+		margin = {top: 20, right: 0, bottom: 10, left: 40},
 		width = +svg.attr("width") - margin.left - margin.right,
 		height = +svg.attr("height") - margin.top - margin.bottom,
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -20,21 +50,20 @@ var y = d3.scaleLinear()
 	.range([height, 0]);
 
 var line = d3.line()
-	.y(function(d) { 
-
-		return y(d.mBar); 
-	}) // mBar
+	.y(function(d) { return y(d.mBar); }) // mBar
 	// .y(function(d) { return y(d.Temp); }) // Temp
-	.x(function(d) { 
-
-		return x(d.Time); 
-	});
+	.x(function(d) { return x(d.Time); });
 
 var xAxis, yAxis, baroLine, mBarLine;
 
 function update(data) {
-	// sort data by time & set x Domain
+	if (!window.data) window.data = data;
+	if (!data) data = window.data;
+
+
 	data = data.sort(function (a, b) { return a.Time - b.Time; });
+
+
 	// x.domain(window.appState.timeline.getTimeDomain());
 	x.domain(d3.extent(data, function(d) { return d.Time; }));
 	// y.domain(d3.extent(data, function(d) { return d.mBar; }));
@@ -64,25 +93,26 @@ function update(data) {
 		.text("Pressure (mBar)"); // mBar
 		// .text("Temp (F)"); // Temp
 
-		var i = 0;
-	// Actual line
-	mBarLine = g.append("path").attr("class", "mBar")
-	.datum(data)
-	.attr("fill", "none")
-	.attr("stroke", "steelblue")
-	.attr("stroke-width", 1.5)
-	.attr("stroke-linecap", "round")
-	.attr("stroke-linejoin", "round")
-	.attr("d", line);
+	if (window.graphLineState.mBar.isActive) {
+		// Actual line for mBar
+		mBarLine = g.append("path").attr("class", "mBar")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "lightcoral")
+		.attr("stroke-width", 1.5)
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", line);
 
-	// Avg mBar line
-	baroLine = g.append("line")
-	.attr("x1", "0").attr("y1", "0")
-	.attr("x2", width).attr("y2", "0")
-	.attr("transform", "translate(0," + y(1013.25) + ")")
-	.attr("stroke", 'grey')
-	.attr("stroke-width", "1")
-	.attr("stroke-dasharray", "5, 5");
+		// Avg mBar line
+		baroLine = g.append("line")
+		.attr("x1", "0").attr("y1", "0")
+		.attr("x2", width).attr("y2", "0")
+		.attr("transform", "translate(0," + y(1013.25) + ")")
+		.attr("stroke", 'grey')
+		.attr("stroke-width", "1")
+		.attr("stroke-dasharray", "5, 5");
+	}
 }
 
 function responseHandler (d) {
@@ -90,10 +120,13 @@ function responseHandler (d) {
 	if (typeof d === "string") d = d3.tsvParse(d); 
 	for (var i = 0; i < d.length; i++) {
 		if (d[i].mBar)
+			// debugger;
 			viewModel.push({
 				Time : parseTime(d[i].Time),
 				mBar : +d[i].mBar,
-				Temp : +d[i].Temp
+				Temp : +d[i].Temp,
+				rHum : +d[i].rHum,
+				"Wind Speed" : +d[i]["Wind Speed"]
 			});
 	}
 
@@ -179,6 +212,7 @@ var Station = function () {
 	self.onLineControlTap = function (e) {
 		e.preventDefault();
 		$(e.target).toggleClass('active');
+		updateGraphLineState(e);
 	}
 
 	self.onTimeControlTap = function (e) {
