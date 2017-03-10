@@ -225,7 +225,7 @@ function responseHandler (d) {
 }
 
 // d3.tsv("/data.tsv", parseData, update);
-$.get("./data.tsv", responseHandler);
+$.get("./data2.tsv", responseHandler);
 
 // $.get("data/20170307.tsv", responseHandler);
 
