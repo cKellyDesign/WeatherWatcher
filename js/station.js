@@ -54,7 +54,7 @@ $('#station').append('<svg height="' + winH + '" width="' + winW + '"></svg>');
 
 
 var svg = d3.select("svg"),
-		margin = {top: 20, right: 8, bottom: 10, left: 40},
+		margin = {top: 20, right: 21, bottom: 10, left: 48},
 		width = +svg.attr("width") - margin.left - margin.right,
 		height = +svg.attr("height") - margin.top - margin.bottom,
 		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -155,20 +155,19 @@ function update(data) {
 		.on("click", handleLineClick)
 		;
 
-		// Avg mBar line
-		baroLine = g.append("line").attr("class", "baroAvg")
-		.attr("x1", "0").attr("y1", "0")
-		.attr("x2", width).attr("y2", "0")
-		.attr("transform", "translate(0," + mBarY(1013.25) + ")")
-		.attr("stroke", 'lightcoral').attr("opacity", .5)
-		.attr("stroke-width", "1")
-		.attr("stroke-dasharray", "5, 5");
-		// .on("tap", function (e) { 
-		// 	window.graphLineState.showBaroLineText = !window.graphLineState.showBaroLineText; 
-		// });
+		if (window.graphLineState.mBar.focus) {
+			// Avg mBar line
+			baroLine = g.append("line").attr("class", "baroAvg")
+			.attr("x1", "0").attr("y1", "0")
+			.attr("x2", width).attr("y2", "0")
+			.attr("transform", "translate(0," + mBarY(1013.25) + ")")
+			.attr("stroke", 'lightcoral').attr("opacity", .5)
+			.attr("stroke-width", "1")
+			.attr("stroke-dasharray", "5, 5");
+		}
 
 
-		if (window.graphLineState.showBaroLineText) {
+		if (window.graphLineState.mBar.focus) {
 
 			var baroText = g.append("g").attr("class", "baroAvgTextWrap")
 			.attr("fill", 'white')
@@ -190,15 +189,16 @@ function update(data) {
 		.attr("transform", "translate(0," + (height - margin.bottom) + ")")
 		.call(d3.axisBottom(x));
 
+	var textOffset = window.graphLineState.mBar.focus ? -45 : -36;
 	// Left Axis
 	yAxis = g.append("g")
 		.call(d3.axisLeft(y))
 		.append("text")
 		.attr("fill", '#000')
-		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
+		.attr("transform", "rotate(-90) translate(" + -height/2 + ",0)")
+		.attr("y", textOffset)
 		.attr("dy", "0.71em")
-		.attr("text-anchor", "end")
+		.attr("text-anchor", "middle")
 		.text(window.graphLineState[window.graphLineState.focus].label);
 }
 
@@ -307,8 +307,40 @@ var Station = function () {
 		$('body').toggleClass('nav');
 	}
 
+	self.onBtnRdoClick = function (e) {
+		if ( $('.checkB input:checked').length && $('.radio input:checked').length ) {
+			$('#formBtn').removeClass('notReady').addClass('ready');
+		} else {
+			$('#formBtn').attr('class', 'notReady');
+		}
+	}
+
+	self.handleFormButtonClick = function (e) {
+		e.preventDefault();
+
+		switch ($(e.target).attr('class')) {
+			case "waiting": 
+				$('#formQuestionsWrapper').slideDown(300);
+				$(e.target).removeClass('waiting').addClass('notReady');
+				$(e.target).text('Submit');
+				$('.checkB, .radio').on('click', self.onBtnRdoClick);
+			break;
+			case "notReady":
+
+			break;
+			case "ready":
+				$('#formQuestionsWrapper').slideUp(300);
+				$(e.target).removeClass('ready').addClass('waiting');
+				$(e.target).text('Log Discomfort');
+				$('.checkB, .radio').off('click', self.onBtnRdoClick);
+				window.setTimeout(function(){ $('.checkB input, .radio input').prop('checked', false); }, 300);
+			break;
+		}
+	}
+
 	$('#controls ul li a').on('click', self.onLineControlTap);
 	$('#burger, #closeNav').on('click', self.handleNavClick);
+	$('#formBtn').on('click', self.handleFormButtonClick);
 	// $('#burger, #closeNav').on('click', self.handleNavClick);
 } // end of Station
 

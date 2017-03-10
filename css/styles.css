@@ -106,7 +106,9 @@ body.nav #closeNav {
 	list-style: none;
 	position: relative;
 	display: block;
-
+    /*height: 50px;*/
+    height: 72px;
+    margin-bottom: 12px;
 }
 
 #controls ul li {
@@ -114,8 +116,12 @@ body.nav #closeNav {
 	text-align: center;
 	top: 0;
 	height: 50px;
+	margin-bottom: 0;
 }
-#controls ul li:nth-of-type(1){
+
+
+
+#controls ul li:nth-of-type(1) {
 	left: 0; right: 75%;
 }
 #controls ul li:nth-of-type(2) {
@@ -133,14 +139,42 @@ body.nav #closeNav {
 	font-size: 30px;
 	text-decoration: none;
 	line-height: 50px;
-	color: grey;
 	margin: 0 5px;
 	transition: none;
 }
-
-#controls ul li a.active {
-	color: white;
+.btnLabel {
+	font-size: 10px;
+    display: block;
+    margin-top: 4px;
+    line-height: 1;
 }
+
+#controls ul li:nth-of-type(1) a {
+	margin-left: 0;
+}
+#controls ul li:nth-of-type(4) a {
+	margin-right: 0;
+}
+
+#controls ul li:nth-of-type(1) span {
+	color: darkorange;
+    margin-right: 5px;
+}
+#controls ul li:nth-of-type(2) span {
+	color: steelblue;
+}
+#controls ul li:nth-of-type(3) span {
+	color: lightcoral;
+}
+#controls ul li:nth-of-type(4) span {
+	color: lightblue;
+    margin-left: 5px;
+}
+
+#TempBtn { color: darkorange; }
+#rHumBtn { color: steelblue; }
+#mBarBtn { color: lightcoral; }
+#WindBtn { color: lightblue; }
 
 #TempBtn.active {
 	background-color: darkorange;
@@ -154,3 +188,139 @@ body.nav #closeNav {
 #WindBtn.active {
 	background-color: lightblue;
 }
+#controls ul li a.active {
+	color: white;
+}
+
+#form h2 {
+	font-size: 21px;
+	text-align: center;
+	margin: 12px;
+}
+
+.formDescription {
+	font-size: 12px;
+    text-align: center;
+    margin: 6px 0 12px;
+}
+
+#formQuestionsWrapper {
+	display: none;
+	text-align: center;
+	position: relative;
+}
+
+#formQuestionsWrapper h3 {
+	text-align: center;
+	display: block;
+	overflow: hidden;
+    font-size: 24px;
+    margin-bottom: 6px;
+    margin-top: 12px;
+}
+
+.checkB {
+
+    font-weight: 100;
+    font-size: 18px;
+    position: relative;
+    padding: 8px 0;
+
+    width: 48%;
+    display: inline-block;
+}
+
+.checkB input {
+	-webkit-appearance: none;
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    margin-bottom: 0;
+
+    border: 1px solid transparent;
+    transition: border-color .2s;
+}
+.checkB input:checked {
+	border-color: black;
+}
+
+.checkB input:focus {
+	outline: none;
+}
+
+
+#formBtn {
+	display: block;
+    margin: 0;
+    width: 100%;
+    padding-top: 3px;
+    height: 60px;
+    font-size: 18px;
+    font-weight: 100;
+    margin-top: 18px;
+    border: none;
+    border-radius: 0;
+
+    transition: background-color .3s;
+}
+
+#formBtn.waiting {
+    background-color: tomato;
+    color: white;
+}
+
+#formBtn.notReady {
+    background-color: lightgrey;
+    color: darkslategrey;
+}
+
+#formBtn.ready {
+	background-color: lightgreen;
+	font-weight: bold;
+	color: black;
+}
+#levelTitle {
+}
+.levelTrack {
+	background-color: lightgrey;
+	display: block;
+	position: absolute;
+	left: 10%; right: 10%;
+	height: 5px;
+    z-index: -1;
+    margin-top: 7px;
+}
+.radio {
+	display: inline-block;
+	width: 18%;
+	line-height: 1;
+	font-weight: 100;
+}
+.radio input {
+	margin-bottom: 0;
+    -webkit-appearance: none;
+    background-color: white;
+    height: 19px;
+    width: 19px;
+    display: inline-block;
+    border-radius: 100%;
+    border: 2px solid lightgrey;	
+
+    transition: background-color .3s;
+}
+.radio input:checked {
+	background-color: lightgrey;
+	box-shadow: inset 0px 0px 0 2px white;
+}
+.radio input:focus {
+	outline: none;
+}
+
+
+
+
+
+

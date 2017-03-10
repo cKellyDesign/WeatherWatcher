@@ -24,14 +24,58 @@
 
 <main id="station"></main>
 
-<aside id="controls">
+<aside id="controls" class="container">
   <ul>
-    <li><a href="" id="TempBtn" class="fa fa-sun-o"></a></li>
-    <li><a href="" id="rHumBtn" class="fa fa-tint"></a></li>
-    <li><a href="" id="mBarBtn" class="fa fa-jsfiddle active"></a></li>
-    <li><a href="" id="WindBtn" class="fa fa-flag"></a></li>
+    <li>
+      <a href="" id="TempBtn" class="fa fa-sun-o"></a>
+      <span class="btnLabel">Temperature</span>
+    </li>
+    <li>
+      <a href="" id="rHumBtn" class="fa fa-tint"></a>
+      <span class="btnLabel">Humidity</span>
+    </li>
+    <li>
+      <a href="" id="mBarBtn" class="fa fa-jsfiddle active"></a>
+      <span class="btnLabel">Barometric</span>
+    </li>
+    <li>
+      <a href="" id="WindBtn" class="fa fa-flag"></a>
+      <span class="btnLabel">Wind Speed</span>
+    </li>
   </ul>
 </aside>
+
+
+<section class="container">
+  <form id="form">
+    <h2>Affected by the Weather?</h2>
+    <p class="formDescription">Often times people can experience pain or discomfort under certain dynamic weather conditions, are you one of these people? If so start logging these instances to see if you are affected by the weather!</p>
+  <div id="formQuestionsWrapper">
+    <h3>Type of Sensation</h3>
+    <label class="disc checkB">
+      <input value="disc" type="checkbox" /> Discomfort
+    </label>
+    <label class="ache checkB">
+      <input value="ache" type="checkbox" /> Aches
+    </label>
+    <label class="sharp checkB">
+      <input value="sharp" type="checkbox" /> Sharp
+    </label>
+    <label class="pres checkB">
+      <input value="pres" type="checkbox" /> Pressure
+    </label>
+
+    <h3 id="levelTitle">Level of Sensation (1-5)</h3>
+    <div class="levelTrack"></div>
+    <label class="radio"><input value="1" type="radio" name="level" /><br>1</label>
+    <label class="radio"><input value="2" type="radio" name="level" /><br>2</label>
+    <label class="radio"><input value="3" type="radio" name="level" /><br>3</label>
+    <label class="radio"><input value="4" type="radio" name="level" /><br>4</label>
+    <label class="radio"><input value="5" type="radio" name="level" /><br>5</label>
+  </div>
+  <button id="formBtn" class="waiting">Log Discomfort</button>
+  </form>
+</section>
 
 <!-- Dependencies -->
 <script src="js/jquery-3.1.1.min.js" ></script>
