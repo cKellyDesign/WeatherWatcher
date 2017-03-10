@@ -49,7 +49,10 @@ function updateGraphLineState (e) {
 
 
 var	winW = $('#station').innerWidth();
-var	winH = ( $('#station').innerWidth() * .75 > $(window).innerHeight() ) ? $(window).innerHeight() : $('#station').innerWidth() * .75;
+var	winH = ( $('#station').innerWidth() * .75 > $(window).innerHeight() ) ? 
+			$(window).innerHeight() : 
+			$('#station').innerWidth() * .75;
+
 $('#station').append('<svg height="' + winH + '" width="' + winW + '"></svg>');
 
 
@@ -64,13 +67,11 @@ var parseTime = d3.timeParse('%Y:%m:%d:%H:%M:%S');
 var x = d3.scaleTime().rangeRound([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
-
 var TempY = d3.scaleLinear().range([height, 0]);
 var rHumY = d3.scaleLinear().range([height, 0]);
 var mBarY = d3.scaleLinear().range([height, 0]);
 var WindY = d3.scaleLinear().range([height, 0]);
 	
-
 var tLine = d3.line().y(function(d) { return TempY(d.Temp); }).x(function(d) { return x(d.Time); }); // mBar
 var rLine = d3.line().y(function(d) { return rHumY(d.rHum); }).x(function(d) { return x(d.Time); }); // mBar
 var mLine = d3.line().y(function(d) { return mBarY(d.mBar); }).x(function(d) { return x(d.Time); }); // mBar
