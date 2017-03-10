@@ -185,9 +185,10 @@ function update(data) {
 	}
 
 	// Bottom Axis
-	xAxis = g.append("g")
+	xAxis = g.append("g").attr('class', 'xAxis')
 		.attr("transform", "translate(0," + (height - margin.bottom) + ")")
-		.call(d3.axisBottom(x));
+		.call(d3.axisBottom(x).ticks(5));
+
 
 	var textOffset = window.graphLineState.mBar.focus ? -45 : -36;
 	// Left Axis
@@ -201,13 +202,14 @@ function update(data) {
 		.attr("text-anchor", "middle")
 		.text(window.graphLineState[window.graphLineState.focus].label);
 }
-
+// var timelineCutoffHours = 72;
 function responseHandler (d) {
 	var	viewModel = [];
-	if (typeof d === "string") d = d3.tsvParse(d); 
+	if (typeof d === "string") d = d3.tsvParse(d);
+
+
 	for (var i = 0; i < d.length; i++) {
-		if (d[i].mBar)
-			
+		if (d[i].mBar ) {
 			viewModel.push({
 				Time : parseTime(d[i].Time),
 				mBar : +d[i].mBar,
@@ -215,6 +217,9 @@ function responseHandler (d) {
 				rHum : +d[i].rHum,
 				Wind : +d[i]["Wind Speed"]
 			});
+		}
+			
+			
 	}
 	mBarY.domain(window.graphLineState.mBar.domain);
 	TempY.domain(window.graphLineState.Temp.domain);
@@ -225,7 +230,7 @@ function responseHandler (d) {
 }
 
 // d3.tsv("/data.tsv", parseData, update);
-$.get("./data2.tsv", responseHandler);
+$.get("./data3.tsv", responseHandler);
 
 // $.get("data/20170307.tsv", responseHandler);
 
